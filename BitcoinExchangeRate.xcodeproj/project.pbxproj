@@ -14,6 +14,7 @@
 		D310CB382986B0BA00571F68 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D310CB372986B0BA00571F68 /* Assets.xcassets */; };
 		D310CB3B2986B0BA00571F68 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D310CB392986B0BA00571F68 /* LaunchScreen.storyboard */; };
 		D310CB442986BA9700571F68 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D310CB432986BA9700571F68 /* Alamofire */; };
+		D310CB472986CF6700571F68 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D310CB462986CF6700571F68 /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D310CB442986BA9700571F68 /* Alamofire in Frameworks */,
+				D310CB472986CF6700571F68 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +89,7 @@
 			name = BitcoinExchangeRate;
 			packageProductDependencies = (
 				D310CB432986BA9700571F68 /* Alamofire */,
+				D310CB462986CF6700571F68 /* SnapKit */,
 			);
 			productName = BitcoinExchangeRate;
 			productReference = D310CB2B2986B0B800571F68 /* BitcoinExchangeRate.app */;
@@ -118,6 +121,7 @@
 			mainGroup = D310CB222986B0B800571F68;
 			packageReferences = (
 				D310CB422986BA9700571F68 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				D310CB452986CF6700571F68 /* XCRemoteSwiftPackageReference "SnapKit" */,
 			);
 			productRefGroup = D310CB2C2986B0B800571F68 /* Products */;
 			projectDirPath = "";
@@ -374,6 +378,14 @@
 				minimumVersion = 5.0.0;
 			};
 		};
+		D310CB452986CF6700571F68 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit";
+			requirement = {
+				branch = develop;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -381,6 +393,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D310CB422986BA9700571F68 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		D310CB462986CF6700571F68 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D310CB452986CF6700571F68 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
