@@ -13,6 +13,7 @@
 		D310CB362986B0B800571F68 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D310CB342986B0B800571F68 /* Main.storyboard */; };
 		D310CB382986B0BA00571F68 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D310CB372986B0BA00571F68 /* Assets.xcassets */; };
 		D310CB3B2986B0BA00571F68 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D310CB392986B0BA00571F68 /* LaunchScreen.storyboard */; };
+		D310CB442986BA9700571F68 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D310CB432986BA9700571F68 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D310CB442986BA9700571F68 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +85,9 @@
 			dependencies = (
 			);
 			name = BitcoinExchangeRate;
+			packageProductDependencies = (
+				D310CB432986BA9700571F68 /* Alamofire */,
+			);
 			productName = BitcoinExchangeRate;
 			productReference = D310CB2B2986B0B800571F68 /* BitcoinExchangeRate.app */;
 			productType = "com.apple.product-type.application";
@@ -111,6 +116,9 @@
 				Base,
 			);
 			mainGroup = D310CB222986B0B800571F68;
+			packageReferences = (
+				D310CB422986BA9700571F68 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			productRefGroup = D310CB2C2986B0B800571F68 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -293,8 +301,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -321,8 +328,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -358,6 +364,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D310CB422986BA9700571F68 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D310CB432986BA9700571F68 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D310CB422986BA9700571F68 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D310CB232986B0B800571F68 /* Project object */;
 }
