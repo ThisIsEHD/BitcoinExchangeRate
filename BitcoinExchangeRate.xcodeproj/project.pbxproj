@@ -9,23 +9,25 @@
 /* Begin PBXBuildFile section */
 		D310CB2F2986B0B800571F68 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310CB2E2986B0B800571F68 /* AppDelegate.swift */; };
 		D310CB312986B0B800571F68 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310CB302986B0B800571F68 /* SceneDelegate.swift */; };
-		D310CB332986B0B800571F68 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310CB322986B0B800571F68 /* ViewController.swift */; };
+		D310CB332986B0B800571F68 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D310CB322986B0B800571F68 /* MainViewController.swift */; };
 		D310CB362986B0B800571F68 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D310CB342986B0B800571F68 /* Main.storyboard */; };
 		D310CB382986B0BA00571F68 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D310CB372986B0BA00571F68 /* Assets.xcassets */; };
 		D310CB3B2986B0BA00571F68 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D310CB392986B0BA00571F68 /* LaunchScreen.storyboard */; };
 		D310CB442986BA9700571F68 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = D310CB432986BA9700571F68 /* Alamofire */; };
 		D310CB472986CF6700571F68 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = D310CB462986CF6700571F68 /* SnapKit */; };
+		D3D5F84F298A233500F5D9B5 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D5F84E298A233500F5D9B5 /* Observable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		D310CB2B2986B0B800571F68 /* BitcoinExchangeRate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BitcoinExchangeRate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D310CB2E2986B0B800571F68 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D310CB302986B0B800571F68 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		D310CB322986B0B800571F68 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		D310CB322986B0B800571F68 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		D310CB352986B0B800571F68 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D310CB372986B0BA00571F68 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D310CB3A2986B0BA00571F68 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D310CB3C2986B0BA00571F68 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D3D5F84E298A233500F5D9B5 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +64,8 @@
 			children = (
 				D310CB2E2986B0B800571F68 /* AppDelegate.swift */,
 				D310CB302986B0B800571F68 /* SceneDelegate.swift */,
-				D310CB322986B0B800571F68 /* ViewController.swift */,
+				D310CB322986B0B800571F68 /* MainViewController.swift */,
+				D3D5F84E298A233500F5D9B5 /* Observable.swift */,
 				D310CB342986B0B800571F68 /* Main.storyboard */,
 				D310CB372986B0BA00571F68 /* Assets.xcassets */,
 				D310CB392986B0BA00571F68 /* LaunchScreen.storyboard */,
@@ -150,7 +153,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D310CB332986B0B800571F68 /* ViewController.swift in Sources */,
+				D3D5F84F298A233500F5D9B5 /* Observable.swift in Sources */,
+				D310CB332986B0B800571F68 /* MainViewController.swift in Sources */,
 				D310CB2F2986B0B800571F68 /* AppDelegate.swift in Sources */,
 				D310CB312986B0B800571F68 /* SceneDelegate.swift in Sources */,
 			);

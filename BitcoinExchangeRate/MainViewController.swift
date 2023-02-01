@@ -9,7 +9,7 @@ import UIKit
 import Alamofire
 import SnapKit
 
-class ViewController: UIViewController {
+class MainViewController: UIViewController {
 
     private var webSocket: URLSessionWebSocketTask?
     
@@ -26,7 +26,7 @@ class ViewController: UIViewController {
         webSocket?.resume()
         
         priceLabel.text = "0.0000"
-        requestButton.setTitle("요청", for: .normal)
+        requestButton.setTitle("중단", for: .normal)
         requestButton.backgroundColor = .blue
         
         view.addSubview(priceLabel)
@@ -66,7 +66,7 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: URLSessionWebSocketDelegate {
+extension MainViewController: URLSessionWebSocketDelegate {
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         print("0 - Did connect to socket")
         ping()
@@ -85,7 +85,7 @@ extension ViewController: URLSessionWebSocketDelegate {
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
-                       self.ping()
+               self.ping()
            }
         })
     }
@@ -112,14 +112,19 @@ extension ViewController: URLSessionWebSocketDelegate {
     }
     
     func send() {
-        
-           DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-               let data = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"BTCUSDT\",\"instType\":\"SP\"}]}"
-               self.webSocket?.send(.string(data), completionHandler: { error in
-                   if let error = error {
-                       print("Send error: \(error)")
-                   }
-               })
-           }
+       DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+           let data1 = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"BTCUSDT\",\"instType\":\"SP\"}]}"
+           let data2 = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"ETHUSDT\",\"instType\":\"SP\"}]}"
+           self.webSocket?.send(.string(data1), completionHandler: { error in
+               if let error = error {
+                   print("Send error: \(error)")
+               }
+           })
+           self.webSocket?.send(.string(data2), completionHandler: { error in
+               if let error = error {
+                   print("Send error: \(error)")
+               }
+           })
        }
+   }
 }
