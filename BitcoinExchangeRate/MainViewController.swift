@@ -11,7 +11,7 @@ import SnapKit
 
 class MainViewController: UIViewController {
 
-    private var webSocket: URLSessionWebSocketTask?
+    private lazy var webSocket = WebSocket(delegate: self)
     
     let priceLabel = UILabel(frame: .zero)
     let requestButton = UIButton(frame: .zero)
@@ -19,11 +19,7 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
-        guard let url = URL(string: "wss://ws.bitget.com/mix/v1/stream") else { return }
-        
-        webSocket = session.webSocketTask(with: url)
-        webSocket?.resume()
+        webSocket.resumeWebSocket(delegate: self)
         
         priceLabel.text = "0.0000"
         requestButton.setTitle("중단", for: .normal)
@@ -44,7 +40,7 @@ class MainViewController: UIViewController {
     }
 
     @objc private func buttonTapped() {
-        webSocket?.cancel(with: .goingAway, reason: "Demo ended".data(using: .utf8))
+//        webSocket?.cancel(with: .goingAway, reason: "Demo ended".data(using: .utf8))
     }
     
     func jsonDecode<T: Codable>(type: T.Type, data: Data) -> T? {
@@ -69,62 +65,12 @@ class MainViewController: UIViewController {
 extension MainViewController: URLSessionWebSocketDelegate {
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         print("0 - Did connect to socket")
-        ping()
-        send()
-        receive()
+        webSocket.sendPing()
+        webSocket.send(tickers: ["dummy"])
+        webSocket.recieve()
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         print("Did close connection with reason")
     }
-    
-    func ping() {
-        webSocket?.sendPing(pongReceiveHandler: { error in
-            if let error = error {
-                print("error:", error)
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
-               self.ping()
-           }
-        })
-    }
-    
-    func receive() {
-        webSocket?.receive(completionHandler: { [weak self] result in
-            
-            switch result {
-            case .success(let message):
-                switch message {
-                case .data(let data):
-                    print("Got data: \(data)")
-                case .string(let message):
-                    print("Got string: \(message)")
-                @unknown default:
-                    print("unknown default")
-                }
-            case .failure(let error):
-                print("Receive error: \(error)")
-            }
-            
-            self?.receive()
-        })
-    }
-    
-    func send() {
-       DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-           let data1 = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"BTCUSDT\",\"instType\":\"SP\"}]}"
-           let data2 = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"ETHUSDT\",\"instType\":\"SP\"}]}"
-           self.webSocket?.send(.string(data1), completionHandler: { error in
-               if let error = error {
-                   print("Send error: \(error)")
-               }
-           })
-           self.webSocket?.send(.string(data2), completionHandler: { error in
-               if let error = error {
-                   print("Send error: \(error)")
-               }
-           })
-       }
-   }
 }
