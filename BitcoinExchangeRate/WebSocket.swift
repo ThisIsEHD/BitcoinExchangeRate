@@ -13,7 +13,7 @@ struct WebSocket {
     private let session: URLSession
     private let websocketURL = URL(string: "wss://ws.bitget.com/mix/v1/stream")!
     
-    internal func resumeWebSocket(delegate: URLSessionWebSocketDelegate) {
+    internal func resumeWebSocket() {
         webSocket.resume()
     }
     
