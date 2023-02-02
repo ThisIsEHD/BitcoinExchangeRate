@@ -9,6 +9,10 @@ import UIKit
 import Alamofire
 import SnapKit
 
+class MainViewModel {
+    
+}
+
 class MainViewController: UIViewController {
 
     private lazy var webSocket = WebSocket(delegate: self)
@@ -42,31 +46,13 @@ class MainViewController: UIViewController {
     @objc private func buttonTapped() {
 //        webSocket?.cancel(with: .goingAway, reason: "Demo ended".data(using: .utf8))
     }
-    
-    func jsonDecode<T: Codable>(type: T.Type, data: Data) -> T? {
-
-        let jsonDecoder = JSONDecoder()
-        let result: Codable?
-
-        do {
-
-            result = try jsonDecoder.decode(type, from: data)
-
-            return result as? T
-        } catch {
-
-            print(error)
-
-            return nil
-        }
-    }
 }
 
 extension MainViewController: URLSessionWebSocketDelegate {
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         print("0 - Did connect to socket")
         webSocket.sendPing()
-        webSocket.send(tickers: ["dummy"])
+        webSocket.send(tickers: ["BTC"])
         webSocket.recieve()
     }
     

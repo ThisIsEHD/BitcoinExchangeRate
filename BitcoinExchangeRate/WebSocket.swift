@@ -44,10 +44,14 @@ struct WebSocket {
             switch result {
             case .success(let message):
                 switch message {
-                case .data(let data):
-                    print("Got data: \(data)")
+                case .data:
+                    print("Got Data")
+                    
                 case .string(let message):
-                    print("Got string: \(message)")
+                    
+                    let jsonData  = message.toJSONData()
+                    let responseResult = jsonData?.jsonDecode(type: ResponseResult.self)
+                    
                 @unknown default:
                     print("unknown default")
                 }
@@ -61,18 +65,14 @@ struct WebSocket {
     
     internal func send(tickers: [String]) {
         DispatchQueue.global().asyncAfter(deadline: .now()) {
-            let data1 = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"BTCUSDT\",\"instType\":\"SP\"}]}"
-            let data2 = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"ETHUSDT\",\"instType\":\"SP\"}]}"
-            self.webSocket.send(.string(data1), completionHandler: { error in
-                if let error = error {
-                    print("Send error: \(error)")
-                }
-            })
-            self.webSocket.send(.string(data2), completionHandler: { error in
-                if let error = error {
-                    print("Send error: \(error)")
-                }
-            })
+            for ticker in tickers {
+                let requestInString = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"\(ticker)USDT\",\"instType\":\"SP\"}]}"
+                self.webSocket.send(.string(requestInString), completionHandler: { error in
+                    if let error = error {
+                        print("Send error: \(error)")
+                    }
+                })
+            }
         }
     }
 }
