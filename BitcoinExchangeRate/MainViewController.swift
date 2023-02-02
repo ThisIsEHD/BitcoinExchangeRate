@@ -10,12 +10,19 @@ import Alamofire
 import SnapKit
 
 class MainViewModel {
+    var selectedTickers: Observable<[String]> = Observable(["BTC"])
+    var price: Observable<String>
     
+    init(price: Observable<String>) {
+        self.price = price
+    }
 }
 
 class MainViewController: UIViewController {
 
     private lazy var webSocket = WebSocket(delegate: self)
+    
+    private var viewModel = MainViewModel(price: Observable(""))
     
     let priceLabel = UILabel(frame: .zero)
     let requestButton = UIButton(frame: .zero)
@@ -41,10 +48,21 @@ class MainViewController: UIViewController {
             make.centerX.equalTo(priceLabel)
             make.top.equalTo(priceLabel).offset(30)
         }
+        
+        setUpBinding()
     }
 
     @objc private func buttonTapped() {
 //        webSocket?.cancel(with: .goingAway, reason: "Demo ended".data(using: .utf8))
+    }
+    
+    private func setUpBinding() {
+        viewModel.price.bind { price in
+            print(#function)
+            DispatchQueue.main.async {
+                self.priceLabel.text = price
+            }
+        }
     }
 }
 
@@ -53,7 +71,7 @@ extension MainViewController: URLSessionWebSocketDelegate {
         print("0 - Did connect to socket")
         webSocket.sendPing()
         webSocket.send(tickers: ["BTC"])
-        webSocket.recieve()
+        webSocket.recieve(in: viewModel)
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {

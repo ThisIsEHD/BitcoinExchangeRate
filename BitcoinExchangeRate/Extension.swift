@@ -21,13 +21,13 @@ extension Data {
         let result: Codable?
 
         do {
-
+            
             result = try jsonDecoder.decode(type, from: self)
 
             return result as? T
         } catch {
 
-            print(error)
+            print(error, "🔥🔥")
 
             return nil
         }

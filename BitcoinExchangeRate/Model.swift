@@ -7,14 +7,30 @@
 
 import Foundation
 
-struct ResponseResult: Codable {
+struct WebSocketRequest: Codable {
+    let op: String
+    let args: [Argument]
+}
+
+struct WebSocketResponse: Codable {
     let action: String
-    let arg: Arg
-    let data: [MarketData]
+    let arguments: Argument
+    let marketData: [MarketData]
+    
+    enum CodingKeys: String, CodingKey {
+        case action
+        case arguments = "arg"
+        case marketData = "data"
+    }
+}
+
+struct WebSocketInitialResponse: Codable {
+    let event: String
+    let arg: Argument
 }
 
 // MARK: - Arg
-struct Arg: Codable {
+struct Argument: Codable {
     let instType, channel, instID: String
 
     enum CodingKeys: String, CodingKey {
@@ -43,3 +59,10 @@ struct MarketData: Codable {
         case chgUTC, bidSz, askSz
     }
 }
+
+enum WebSocketError: Error {
+    case wrongDataFormat
+    case recieveFailure
+    case unknonwDataType
+}
+

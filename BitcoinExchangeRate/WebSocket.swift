@@ -38,7 +38,7 @@ struct WebSocket {
         })
     }
     
-    internal func recieve() {
+    internal func recieve(in viewModel: MainViewModel) {
         webSocket.receive(completionHandler: { result in
             
             switch result {
@@ -49,30 +49,50 @@ struct WebSocket {
                     
                 case .string(let message):
                     
-                    let jsonData  = message.toJSONData()
-                    let responseResult = jsonData?.jsonDecode(type: ResponseResult.self)
-                    
+                    let messageData = message.data(using: .utf8)
+                    if let webSocketResponse = messageData?.jsonDecode(type: WebSocketResponse.self) {
+                        print("last price:", webSocketResponse.marketData.first!.last)
+                        viewModel.price.value = webSocketResponse.marketData.first?.last ?? "0"
+                    }
                 @unknown default:
                     print("unknown default")
                 }
             case .failure(let error):
                 print("Receive error: \(error)")
             }
-            
-            self.recieve()
+            self.recieve(in: viewModel)
         })
     }
     
     internal func send(tickers: [String]) {
         DispatchQueue.global().asyncAfter(deadline: .now()) {
-            for ticker in tickers {
-                let requestInString = "{\"op\":\"subscribe\",\"args\":[{\"channel\":\"ticker\",\"instId\":\"\(ticker)USDT\",\"instType\":\"SP\"}]}"
-                self.webSocket.send(.string(requestInString), completionHandler: { error in
-                    if let error = error {
-                        print("Send error: \(error)")
-                    }
-                })
-            }
+            
+            let request = composeRequestString(tickers: tickers)
+            
+            self.webSocket.send(.string(request), completionHandler: { error in
+                if let error = error {
+                    print("Send error: \(error)")
+                }
+            })
         }
+    }
+    
+    private func composeRequestString(tickers: [String]) -> String {
+        let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
+        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
+        guard let jsonData = webSocketRequest.toJSONData(),
+              let strWebSocketRequest = String(data: jsonData, encoding: .utf8) else {
+            return ""
+        }
+        
+        return strWebSocketRequest
+//        let anArgumentValue = "{\"channel\":\"ticker\",\"instId\":\"\(ticker)USDT\",\"instType\":\"SP\"}"
+    }
+}
+
+extension String {
+    func toJSON() -> Any? {
+        guard let data = self.data(using: .utf8, allowLossyConversion: false) else { return nil }
+        return try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
     }
 }
