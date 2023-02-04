@@ -23,6 +23,7 @@ class MainViewModel {
     }
     
     func resumeWebSocket() {
+        
         webSocket.resumeWebSocket()
     }
     
