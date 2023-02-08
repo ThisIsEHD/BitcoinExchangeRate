@@ -6,9 +6,10 @@
 //
 
 import XCTest
+@testable import BitcoinExchangeRate
 
 final class BitcoinExchangeRateTests: XCTestCase {
-
+    
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
@@ -32,4 +33,64 @@ final class BitcoinExchangeRateTests: XCTestCase {
         }
     }
 
+}
+
+class MockSocket: NSObject, WebSocket {
+    var task: WebSocketTask?
+    var delegate: WebSocketEventsDelegate?
+    var dataSource: WebSocketRequestDataSource?
+    
+    required init<T>(url: URL, webSocketTaskProviderType _: T.Type, dataSource: WebSocketRequestDataSource?) where T : WebSocketTaskProviderInUrlSession {
+        super.init()
+        
+        let urlSession = T(configuration: .default, delegate: self, delegateQueue: OperationQueue())
+        self.task = urlSession.createWebSocketTask(with: url)
+        self.dataSource = dataSource
+    }
+    
+    func connect() {
+        task?.resume()
+    }
+    
+    func disconnect() {
+        task?.cancel()
+    }
+    
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+        task?.sendPing { error in
+            
+        }
+        task?.send(.string(dataSource?.getReqeust() ?? "DummyRequest")) { error in
+            guard let error = error else { return }
+            print(error)
+        }
+        task?.receive { result in
+            
+            switch result {
+            case .success(let message):
+                switch message {
+                case .string(let message):
+                    print(message)
+                case .data(let message):
+                    print(message)
+                @unknown default:
+                    print("unkonwn message")
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
+    
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+        print("closed")
+    }
+}
+
+class MockSocketRequestDataSource: WebSocketRequestDataSource {
+    var tickers: [String] = []
+    
+    func getReqeust() -> String {
+        "dummyRequest"
+    }
 }

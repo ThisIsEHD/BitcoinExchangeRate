@@ -7,6 +7,19 @@
 
 import Foundation
 
+enum WebSocketError: Error {
+    case unknownChannel
+    case invalidRequest
+    case invalidOP
+    case needLogIn
+    case loginFail
+    case invalidAccessKey
+    case invalidAccessPassPhrase
+    case invalidAccessTimeStamp
+    case timestampExpired
+    case invalidSignature
+}
+
 protocol WebSocketTask {
     func resume()
     func cancel()
@@ -17,29 +30,83 @@ protocol WebSocketTask {
 
 extension URLSessionWebSocketTask: WebSocketTask {}
 
-protocol WebSocketTaskProvider {
+protocol WebSocketTaskProviderInUrlSession {
     init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue queue: OperationQueue?)
     func createWebSocketTask(with url: URL) -> WebSocketTask
 }
 
-extension URLSession: WebSocketTaskProvider {
+extension URLSession: WebSocketTaskProviderInUrlSession {
     func createWebSocketTask(with url: URL) -> WebSocketTask {
         webSocketTask(with: url)
     }
 }
 
-protocol WebSocket {
-    var delegate: SocketEventsDelegate? { get set }
-    
+protocol WebSocket: URLSessionWebSocketDelegate {
+    var task: WebSocketTask? { get set }
+    var delegate: WebSocketEventsDelegate? { get set }
+    var dataSource: WebSocketRequestDataSource? { get set }
+
+    init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type, dataSource: WebSocketRequestDataSource?)
+
     func connect()
     func disconnect()
 }
 
-protocol SocketEventsDelegate {
+protocol WebSocketEventsDelegate {
+    var isNeedUpdate: Bool? { get set }
     
+    func handle(_ error: Error)
 }
 
-//struct WebSocke {
+protocol WebSocketRequestDataSource {
+    var tickers: [String] { get set }
+
+    func getReqeust() -> String
+}
+
+class Socket: NSObject, WebSocket {
+    var task: WebSocketTask?
+    var delegate: WebSocketEventsDelegate?
+    var dataSource: WebSocketRequestDataSource?
+
+    required init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type, dataSource: WebSocketRequestDataSource?) {
+        super.init()
+        
+        let urlSession = T(configuration: .default, delegate: self, delegateQueue: OperationQueue())
+        task = urlSession.createWebSocketTask(with: url)
+        self.dataSource = dataSource
+        
+    }
+
+    func connect() {
+        task?.resume()
+        task?.sendPing { error in
+            guard let error = error else { return }
+//            self.delegate.handle(error)
+        }
+//        task.send(.string(dataSource.getReqeust()), completionHandler: <#T##(Error?) -> Void#>)
+        task?.receive { result in
+//            switch result {
+//            case .success(let message):
+//
+//            }
+        }
+    }
+
+    func disconnect() {
+       
+    }
+}
+
+class MockSocketDelegate: WebSocketEventsDelegate {
+    var isNeedUpdate: Bool?
+    
+    func handle(_ error: Error) {
+        print(error)
+    }
+}
+
+//struct WebSocket {
 //
 //    private let webSocket: URLSessionWebSocketTask
 //    private let session: URLSession
@@ -118,7 +185,7 @@ protocol SocketEventsDelegate {
 //        }
 //
 //        return strWebSocketRequest
-////        let anArgumentValue = "{\"channel\":\"ticker\",\"instId\":\"\(ticker)USDT\",\"instType\":\"SP\"}"
+//        let anArgumentValue = "{\"channel\":\"ticker\",\"instId\":\"\(ticker)USDT\",\"instType\":\"SP\"}"
 //    }
 //}
 

@@ -59,10 +59,3 @@ struct MarketData: Codable {
         case chgUTC, bidSz, askSz
     }
 }
-
-enum WebSocketError: Error {
-    case wrongDataFormat
-    case recieveFailure
-    case unknonwDataType
-}
-
