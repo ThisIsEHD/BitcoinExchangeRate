@@ -53,9 +53,10 @@ protocol WebSocket: URLSessionWebSocketDelegate {
 }
 
 protocol WebSocketEventsDelegate {
+    var error: Error? { get set }
     var isNeedUpdate: Bool? { get set }
     
-    func handle(_ error: Error)
+    func handleError()
 }
 
 protocol WebSocketRequestDataSource {
@@ -95,14 +96,6 @@ class Socket: NSObject, WebSocket {
 
     func disconnect() {
        
-    }
-}
-
-class MockSocketDelegate: WebSocketEventsDelegate {
-    var isNeedUpdate: Bool?
-    
-    func handle(_ error: Error) {
-        print(error)
     }
 }
 

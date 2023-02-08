@@ -10,29 +10,27 @@ import XCTest
 
 final class BitcoinExchangeRateTests: XCTestCase {
     
+    var socket: WebSocket!
+    
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        try super.setUpWithError()
+        let url = URL(string: "wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self")!
+        socket = MockSocket(url: url, webSocketTaskProviderType: URLSession.self, dataSource: MockSocketRequestDataSource())
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        socket.disconnect()
+        socket = nil
+        try super.tearDownWithError()
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    
+    func testSocketEvents() async throws {
+        let promise = expectation(description: "socket connected")
+        (socket as? MockSocket)?.testFulfilled = { promise.fulfill() }
+        socket.connect()
+        wait(for: [promise], timeout: 2)
+        XCTAssertNil(socket.delegate?.error)
     }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
 }
 
 class MockSocket: NSObject, WebSocket {
@@ -48,6 +46,8 @@ class MockSocket: NSObject, WebSocket {
         self.dataSource = dataSource
     }
     
+    var testFulfilled: (() -> ()) = {}
+    
     func connect() {
         task?.resume()
     }
@@ -57,12 +57,13 @@ class MockSocket: NSObject, WebSocket {
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+        
         task?.sendPing { error in
-            
+            self.delegate?.error = error
         }
         task?.send(.string(dataSource?.getReqeust() ?? "DummyRequest")) { error in
             guard let error = error else { return }
-            print(error)
+            self.delegate?.error = error
         }
         task?.receive { result in
             
@@ -71,13 +72,16 @@ class MockSocket: NSObject, WebSocket {
                 switch message {
                 case .string(let message):
                     print(message)
+                    self.testFulfilled()
                 case .data(let message):
                     print(message)
+                    self.testFulfilled()
                 @unknown default:
                     print("unkonwn message")
+                    self.testFulfilled()
                 }
             case .failure(let error):
-                print(error)
+                self.delegate?.error = error
             }
         }
     }
@@ -92,5 +96,14 @@ class MockSocketRequestDataSource: WebSocketRequestDataSource {
     
     func getReqeust() -> String {
         "dummyRequest"
+    }
+}
+
+class MockSocketEventsDelegate: WebSocketEventsDelegate {
+    var error: Error?
+    var isNeedUpdate: Bool?
+    
+    func handleError() {
+        
     }
 }
