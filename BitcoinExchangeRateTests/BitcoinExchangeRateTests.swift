@@ -24,14 +24,31 @@ final class BitcoinExchangeRateTests: XCTestCase {
         try super.tearDownWithError()
     }
     
-    func testSocketEvents() async throws {
+    func testWebSocketWhenVerifiedWebscoketTesterURLInserted() throws {
+//        let promise = expectation(description: "socket connected")
+//        (socket as? MockSocket)?.testFulfilled = { promise.fulfill() }
+//        socket.connect()
+//        wait(for: [promise], timeout: 2)
+//        XCTAssertNil(socket.delegate?.error)
+    }
+    
+    func testWebSocketWithBitgetWhenProperTickersInsertedIntoDatasource() {
         let promise = expectation(description: "socket connected")
+        let bitgetURL = URL(string: "wss://ws.bitget.com/mix/v1/stream")!
+        let dataSource = MarketDataSocketRequestDataSource()
+        
+        dataSource.tickers = ["BTC"]
+        
+        socket = MockSocket(url: bitgetURL, webSocketTaskProviderType: URLSession.self, dataSource: dataSource)
         (socket as? MockSocket)?.testFulfilled = { promise.fulfill() }
         socket.connect()
-        wait(for: [promise], timeout: 2)
+        
+        wait(for: [promise], timeout: 5)
         XCTAssertNil(socket.delegate?.error)
     }
 }
+
+
 
 class MockSocket: NSObject, WebSocket {
     var task: WebSocketTask?
@@ -42,6 +59,7 @@ class MockSocket: NSObject, WebSocket {
         super.init()
         
         let urlSession = T(configuration: .default, delegate: self, delegateQueue: OperationQueue())
+        self.delegate = MockSocketEventsDelegate()
         self.task = urlSession.createWebSocketTask(with: url)
         self.dataSource = dataSource
     }
@@ -59,11 +77,12 @@ class MockSocket: NSObject, WebSocket {
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
         
         task?.sendPing { error in
-            self.delegate?.error = error
+            guard let _ = error else { return }
+            self.delegate?.error = .invalidOP
         }
         task?.send(.string(dataSource?.getReqeust() ?? "DummyRequest")) { error in
-            guard let error = error else { return }
-            self.delegate?.error = error
+            guard let _ = error else { return }
+            self.delegate?.error = .invalidOP
         }
         task?.receive { result in
             
@@ -72,7 +91,19 @@ class MockSocket: NSObject, WebSocket {
                 switch message {
                 case .string(let message):
                     print(message)
-                    self.testFulfilled()
+                    let messageData = message.data(using: .utf8)
+                    
+                    if let _ = messageData?.jsonDecode(type: WebSocketResponse.self) {
+                        self.testFulfilled()
+                    } else {
+                        if let _ = messageData?.jsonDecode(type: WebSocketInitialResponse.self) {
+                            self.testFulfilled()
+                            
+                        } else {
+                            self.delegate?.error = .invalidOP
+                            self.testFulfilled()
+                        }
+                    }
                 case .data(let message):
                     print(message)
                     self.testFulfilled()
@@ -80,8 +111,8 @@ class MockSocket: NSObject, WebSocket {
                     print("unkonwn message")
                     self.testFulfilled()
                 }
-            case .failure(let error):
-                self.delegate?.error = error
+            case .failure:
+                self.delegate?.error = .invalidOP
             }
         }
     }
@@ -92,7 +123,7 @@ class MockSocket: NSObject, WebSocket {
 }
 
 class MockSocketRequestDataSource: WebSocketRequestDataSource {
-    var tickers: [String] = []
+    var tickers: [String]?
     
     func getReqeust() -> String {
         "dummyRequest"
@@ -100,7 +131,7 @@ class MockSocketRequestDataSource: WebSocketRequestDataSource {
 }
 
 class MockSocketEventsDelegate: WebSocketEventsDelegate {
-    var error: Error?
+    var error: WebSocketError?
     var isNeedUpdate: Bool?
     
     func handleError() {

@@ -53,14 +53,14 @@ protocol WebSocket: URLSessionWebSocketDelegate {
 }
 
 protocol WebSocketEventsDelegate {
-    var error: Error? { get set }
+    var error: WebSocketError? { get set }
     var isNeedUpdate: Bool? { get set }
     
     func handleError()
 }
 
 protocol WebSocketRequestDataSource {
-    var tickers: [String] { get set }
+    var tickers: [String]? { get set }
 
     func getReqeust() -> String
 }
@@ -83,7 +83,7 @@ class Socket: NSObject, WebSocket {
         task?.resume()
         task?.sendPing { error in
             guard let error = error else { return }
-//            self.delegate.handle(error)
+            
         }
 //        task.send(.string(dataSource.getReqeust()), completionHandler: <#T##(Error?) -> Void#>)
         task?.receive { result in
@@ -96,6 +96,24 @@ class Socket: NSObject, WebSocket {
 
     func disconnect() {
        
+    }
+}
+
+class MarketDataSocketRequestDataSource: WebSocketRequestDataSource {
+    var tickers: [String]?
+    
+    func getReqeust() -> String {
+        guard let tickers = tickers, !tickers.isEmpty else { return "" }
+        
+        let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
+        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
+        
+        guard let jsonData = webSocketRequest.toJSONData(),
+              let strWebSocketRequest = String(data: jsonData, encoding: .utf8) else {
+            return ""
+        }
+
+        return strWebSocketRequest
     }
 }
 
