@@ -5,7 +5,7 @@
 //  Created by 신동훈 on 2023/02/02.
 //
 
-import Foundation
+import UIKit
 
 extension Encodable {
     func toJSONData() -> Data? {
@@ -31,5 +31,24 @@ extension Data {
 
             return nil
         }
+    }
+}
+
+class SimpleAlert: UIAlertController {
+    // MARK: - Initialization
+    convenience init(message: String?) {
+        self.init(title: nil, message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: Constant.OK, style: .default, handler: nil)
+        
+        self.addAction(okAction)
+    }
+    
+    convenience init(buttonTitle: String?, message: String?, completion: ((UIAlertAction) -> Void)?) {
+        self.init(title: nil, message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: buttonTitle, style: .default, handler: completion)
+        
+        self.addAction(okAction)
     }
 }

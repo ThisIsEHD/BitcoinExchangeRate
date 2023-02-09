@@ -7,17 +7,9 @@
 
 import Foundation
 
-enum WebSocketError: Error {
-    case unknownChannel
-    case invalidRequest
-    case invalidOP
-    case needLogIn
-    case loginFail
-    case invalidAccessKey
-    case invalidAccessPassPhrase
-    case invalidAccessTimeStamp
-    case timestampExpired
-    case invalidSignature
+enum NetworkError: Error {
+    case webSocketError
+    case httpError
 }
 
 protocol WebSocketTask {
@@ -44,76 +36,51 @@ extension URLSession: WebSocketTaskProviderInUrlSession {
 protocol WebSocket: URLSessionWebSocketDelegate {
     var task: WebSocketTask? { get set }
     var delegate: WebSocketEventsDelegate? { get set }
-    var dataSource: WebSocketRequestDataSource? { get set }
 
-    init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type, dataSource: WebSocketRequestDataSource?)
+    init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type)
 
     func connect()
     func disconnect()
 }
 
 protocol WebSocketEventsDelegate {
-    var error: WebSocketError? { get set }
-    var isNeedUpdate: Bool? { get set }
+    var error: NetworkError? { get set }
     
     func handleError()
 }
 
 protocol WebSocketRequestDataSource {
-    var tickers: [String]? { get set }
-
+    var tickers: Observable<[String]>? { get set }
+    
     func getReqeust() -> String
 }
 
 class Socket: NSObject, WebSocket {
     var task: WebSocketTask?
     var delegate: WebSocketEventsDelegate?
-    var dataSource: WebSocketRequestDataSource?
 
-    required init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type, dataSource: WebSocketRequestDataSource?) {
+    required init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type) {
         super.init()
         
         let urlSession = T(configuration: .default, delegate: self, delegateQueue: OperationQueue())
         task = urlSession.createWebSocketTask(with: url)
-        self.dataSource = dataSource
-        
     }
 
     func connect() {
         task?.resume()
         task?.sendPing { error in
             guard let error = error else { return }
-            
         }
 //        task.send(.string(dataSource.getReqeust()), completionHandler: <#T##(Error?) -> Void#>)
         task?.receive { result in
 //            switch result {
 //            case .success(let message):
-//
 //            }
         }
     }
 
     func disconnect() {
        
-    }
-}
-
-class MarketDataSocketRequestDataSource: WebSocketRequestDataSource {
-    var tickers: [String]?
-    
-    func getReqeust() -> String {
-        guard let tickers = tickers, !tickers.isEmpty else { return "" }
-        
-        let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
-        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
-        
-        guard let jsonData = webSocketRequest.toJSONData(),
-              let strWebSocketRequest = String(data: jsonData, encoding: .utf8) else {
-            return ""
-        }
-
-        return strWebSocketRequest
     }
 }
 
