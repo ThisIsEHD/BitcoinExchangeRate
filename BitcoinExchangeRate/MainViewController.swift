@@ -10,16 +10,33 @@ import Alamofire
 import SnapKit
 
 class MainViewModel: WebSocketRequestDataSource {
-    var allCoinLists: [String]? {
+    var allCoinLists: [String]?
+    var tickers: [String]? {
         didSet {
-//            userdefault의 특정티커 정보 소환하여 tickers에 대입
+            tickers?.forEach({ ticker in
+                if coinsPrice.value[ticker] == nil {
+                    coinsPrice.value[ticker] = "0"
+                }
+            })
         }
     }
-    var tickers: Observable<[String]>?
-    var error: NetworkError?
+    var coinsPrice: Observable<[String : String]> = Observable([:])
     
-    func getReqeust() -> String {
-        guard let tickers = tickers?.value, !tickers.isEmpty else { return "" }
+    var error: NetworkError?
+    var needsUpdate: Observable<Bool>?
+    
+    init(allCoinLists: [String]? = nil, tickers: [String]?, error: NetworkError? = nil) {
+        self.allCoinLists = allCoinLists
+        self.tickers = tickers
+        self.error = error
+    }
+    
+    func handleCoinsPriceData(ticker: String, price: String) {
+        coinsPrice.value[ticker] = price
+    }
+    
+    func getWebSocketReqeust() -> String {
+        guard let tickers = tickers, !tickers.isEmpty else { return "" }
         
         let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
         let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
@@ -33,7 +50,7 @@ class MainViewModel: WebSocketRequestDataSource {
     }
     
     func getAllCoinsList() {
-        let getAllCoinsListAPI = "https://api.bitget.com/api/spot/v1/public/currencies"
+        let getAllCoinsListAPI = Constant.gettingAllCoinsURL
         
         AF.request(getAllCoinsListAPI).validate().response { response in
             guard let httpResponse = response.response,
