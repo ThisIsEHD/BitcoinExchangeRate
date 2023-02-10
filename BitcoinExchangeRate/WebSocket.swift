@@ -39,49 +39,21 @@ protocol WebSocket: URLSessionWebSocketDelegate {
 
     init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type)
 
-    func connect()
+    func connect(with request: String)
     func disconnect()
 }
 
 protocol WebSocketEventsDelegate {
-    var error: NetworkError? { get set }
+    var viewModel: WebSocketRequestDataSource? { get set }
     
-    func handleError()
+    func handleError(_ error: NetworkError)
 }
 
 protocol WebSocketRequestDataSource {
-    var tickers: Observable<[String]>? { get set }
+    var tickers: [String]? { get set }
     
-    func getReqeust() -> String
-}
-
-class Socket: NSObject, WebSocket {
-    var task: WebSocketTask?
-    var delegate: WebSocketEventsDelegate?
-
-    required init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type) {
-        super.init()
-        
-        let urlSession = T(configuration: .default, delegate: self, delegateQueue: OperationQueue())
-        task = urlSession.createWebSocketTask(with: url)
-    }
-
-    func connect() {
-        task?.resume()
-        task?.sendPing { error in
-            guard let error = error else { return }
-        }
-//        task.send(.string(dataSource.getReqeust()), completionHandler: <#T##(Error?) -> Void#>)
-        task?.receive { result in
-//            switch result {
-//            case .success(let message):
-//            }
-        }
-    }
-
-    func disconnect() {
-       
-    }
+    func getWebSocketReqeust() -> String
+    func handleCoinsPriceData(ticker: String, price: String)
 }
 
 //struct WebSocket {
@@ -152,18 +124,6 @@ class Socket: NSObject, WebSocket {
 //                }
 //            })
 //        }
-//    }
-//
-//    private func composeRequestString(tickers: [String]) -> String {
-//        let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
-//        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
-//        guard let jsonData = webSocketRequest.toJSONData(),
-//              let strWebSocketRequest = String(data: jsonData, encoding: .utf8) else {
-//            return ""
-//        }
-//
-//        return strWebSocketRequest
-//        let anArgumentValue = "{\"channel\":\"ticker\",\"instId\":\"\(ticker)USDT\",\"instType\":\"SP\"}"
 //    }
 //}
 

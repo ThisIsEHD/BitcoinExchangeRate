@@ -38,10 +38,26 @@ final class WebSocketTests: XCTestCase {
         
         socket = MockSocket(url: bitgetURL, webSocketTaskProviderType: URLSession.self)
         (socket as? MockSocket)?.testFulfilled = { promise.fulfill() }
-        socket.connect()
+        socket.connect(with: getBTCRequest())
         
         wait(for: [promise], timeout: 5)
-        XCTAssertNil(socket.delegate?.error)
+        let delegate = socket.delegate as? MockSocketEventsDelegate
+        
+        XCTAssertNil(delegate?.error)
+    }
+    
+    func getBTCRequest() -> String {
+        let tickers = ["BTC"]
+        
+        let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
+        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
+        
+        guard let jsonData = webSocketRequest.toJSONData(),
+              let strWebSocketRequest = String(data: jsonData, encoding: .utf8) else {
+            return ""
+        }
+        
+        return strWebSocketRequest
     }
 }
 
@@ -61,37 +77,18 @@ class MockSocket: NSObject, WebSocket {
     
     var testFulfilled: (() -> ()) = {}
     
-    func connect() {
+    func connect(with request: String) {
         task?.resume()
-    }
-    
-    func disconnect() {
-        task?.cancel()
-    }
-    
-    func getBTCRequest() -> String {
-        let tickers = ["BTC"]
         
-        let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
-        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
-        
-        guard let jsonData = webSocketRequest.toJSONData(),
-              let strWebSocketRequest = String(data: jsonData, encoding: .utf8) else {
-            return ""
-        }
-        print(strWebSocketRequest, "🥩")
-        return strWebSocketRequest
-    }
-    
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocol: String?) {
+        let MockDelegate = delegate as? MockSocketEventsDelegate
         
         task?.sendPing { error in
             guard let _ = error else { return }
-            self.delegate?.error = .webSocketError
+            MockDelegate?.error = .webSocketError
         }
-        task?.send(.string(getBTCRequest())) { error in
+        task?.send(.string(request)) { error in
             guard let _ = error else { return }
-            self.delegate?.error = .webSocketError
+            MockDelegate?.error = .webSocketError
         }
         task?.receive { result in
             
@@ -108,7 +105,7 @@ class MockSocket: NSObject, WebSocket {
                         if let _ = messageData?.jsonDecode(type: WebSocketInitialResponse.self) {
                             
                         } else {
-                            self.delegate?.error = .webSocketError
+                            MockDelegate?.error = .webSocketError
                         }
                     }
                     self.testFulfilled()
@@ -120,21 +117,25 @@ class MockSocket: NSObject, WebSocket {
                     self.testFulfilled()
                 }
             case .failure:
-                self.delegate?.error = .webSocketError
+                MockDelegate?.error = .webSocketError
             }
         }
     }
     
+    func disconnect() {
+        task?.cancel()
+    }
+
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         print("closed")
     }
 }
 
 class MockSocketEventsDelegate: WebSocketEventsDelegate {
+    var viewModel: BitcoinExchangeRate.WebSocketRequestDataSource?
     var error: NetworkError?
-    var isNeedUpdate: Bool?
     
-    func handleError() {
+    func handleError(_ error: BitcoinExchangeRate.NetworkError) {
         
     }
 }
