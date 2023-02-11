@@ -19,6 +19,8 @@
 		D35C0F04298B9B2200DB3482 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35C0F03298B9B2200DB3482 /* Model.swift */; };
 		D35C0F06298B9DA800DB3482 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D35C0F05298B9DA800DB3482 /* Extension.swift */; };
 		D3AAD0F62994DAC200B3B304 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0F52994DAC200B3B304 /* Constant.swift */; };
+		D3AAD0FA29977D9C00B3B304 /* AddNewCoinTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0F929977D9C00B3B304 /* AddNewCoinTableViewCell.swift */; };
+		D3AAD0FC29977F1000B3B304 /* AssetColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0FB29977F1000B3B304 /* AssetColor.swift */; };
 		D3D5F84F298A233500F5D9B5 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D5F84E298A233500F5D9B5 /* Observable.swift */; };
 		D3E85443298C08BB0087848B /* WebSocketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E85442298C08BB0087848B /* WebSocketTests.swift */; };
 /* End PBXBuildFile section */
@@ -46,6 +48,8 @@
 		D35C0F03298B9B2200DB3482 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		D35C0F05298B9DA800DB3482 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		D3AAD0F52994DAC200B3B304 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
+		D3AAD0F929977D9C00B3B304 /* AddNewCoinTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewCoinTableViewCell.swift; sourceTree = "<group>"; };
+		D3AAD0FB29977F1000B3B304 /* AssetColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetColor.swift; sourceTree = "<group>"; };
 		D3D5F84E298A233500F5D9B5 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		D3E85440298C08BA0087848B /* BitcoinExchangeRateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitcoinExchangeRateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3E85442298C08BB0087848B /* WebSocketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketTests.swift; sourceTree = "<group>"; };
@@ -95,8 +99,10 @@
 				D310CB2E2986B0B800571F68 /* AppDelegate.swift */,
 				D310CB302986B0B800571F68 /* SceneDelegate.swift */,
 				D310CB322986B0B800571F68 /* MainViewController.swift */,
+				D3AAD0F929977D9C00B3B304 /* AddNewCoinTableViewCell.swift */,
 				D3D5F84E298A233500F5D9B5 /* Observable.swift */,
 				D35C0F03298B9B2200DB3482 /* Model.swift */,
+				D3AAD0FB29977F1000B3B304 /* AssetColor.swift */,
 				D35C0F05298B9DA800DB3482 /* Extension.swift */,
 				D35C0F01298ADD4600DB3482 /* WebSocket.swift */,
 				D3AAD0F52994DAC200B3B304 /* Constant.swift */,
@@ -225,6 +231,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3AAD0FC29977F1000B3B304 /* AssetColor.swift in Sources */,
+				D3AAD0FA29977D9C00B3B304 /* AddNewCoinTableViewCell.swift in Sources */,
 				D3D5F84F298A233500F5D9B5 /* Observable.swift in Sources */,
 				D310CB332986B0B800571F68 /* MainViewController.swift in Sources */,
 				D35C0F06298B9DA800DB3482 /* Extension.swift in Sources */,

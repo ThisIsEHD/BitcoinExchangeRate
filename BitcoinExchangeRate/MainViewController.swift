@@ -9,7 +9,7 @@ import UIKit
 import Alamofire
 import SnapKit
 
-class MainViewModel: WebSocketRequestDataSource {
+final class MainViewModel: WebSocketRequestDataSource {
     var allCoinLists: [String]?
     var tickers: [String]? {
         didSet {
@@ -73,18 +73,34 @@ class MainViewModel: WebSocketRequestDataSource {
     }
 }
 
-
-class MainViewController: UIViewController {
+final class MainViewController: UIViewController {
     
-    var socket: WebSocket?
-    var viewModel: WebSocketRequestDataSource?
+    private var socket: WebSocket?
+    internal var viewModel: WebSocketRequestDataSource?
     
-    let priceLabel = UILabel(frame: .zero)
-    let requestButton = UIButton(frame: .zero)
+    private var tableView: UITableView = {
+       
+        let t = UITableView(frame: .zero)
+        
+        
+        
+        return t
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        initializeData()
+    }
+    
+    private func setUpBinding() {
+        guard let viewModel = viewModel as? MainViewModel else { return }
+        viewModel.needsUpdate?.bind({ needsUpdate in
+            self.socket?.connect(with: viewModel.getWebSocketReqeust())
+        })
+    }
+    
+    private func initializeData() {
         UserDefaults.standard.set(["BTC", "ETH"], forKey: Constant.myFavoriteCoinsTickers)
         let myFavoriteCoinsTickers = UserDefaults.standard.object(forKey: Constant.myFavoriteCoinsTickers) as? [String] ?? []
         
@@ -99,36 +115,9 @@ class MainViewController: UIViewController {
             socket?.connect(with: viewModel.getWebSocketReqeust())
         }
         
-        priceLabel.text = "0.0000"
-        requestButton.setTitle("중단", for: .normal)
-        requestButton.backgroundColor = .blue
-        
-        view.addSubview(priceLabel)
-        view.addSubview(requestButton)
-        
-        requestButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-        
-        priceLabel.snp.makeConstraints { make in
-            make.center.equalTo(view)
-        }
-        requestButton.snp.makeConstraints { make in
-            make.centerX.equalTo(priceLabel)
-            make.top.equalTo(priceLabel).offset(30)
-        }
-        
         setUpBinding()
         
         viewModel.getAllCoinsList()
-    }
-
-    @objc private func buttonTapped() {
-    }
-    
-    private func setUpBinding() {
-        guard let viewModel = viewModel as? MainViewModel else { return }
-        viewModel.needsUpdate?.bind({ needsUpdate in
-            self.socket?.connect(with: viewModel.getWebSocketReqeust())
-        })
     }
 }
 
@@ -139,7 +128,7 @@ extension MainViewController: WebSocketEventsDelegate {
     }
 }
 
-class Socket: NSObject, WebSocket {
+final class Socket: NSObject, WebSocket {
     var task: WebSocketTask?
     var delegate: WebSocketEventsDelegate?
 
