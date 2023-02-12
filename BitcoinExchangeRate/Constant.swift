@@ -16,3 +16,8 @@ struct Constant {
     static let myFavoriteCoinsTickers = "myFavoriteCoinsTickers"
     static let OK = "확인"
 }
+
+
+enum Section: Int, CaseIterable {
+    case main
+}

@@ -59,3 +59,9 @@ struct MarketData: Codable {
         case chgUTC, bidSz, askSz
     }
 }
+
+struct Ticker: Hashable {
+    
+    let id = UUID()
+    var name: String
+}

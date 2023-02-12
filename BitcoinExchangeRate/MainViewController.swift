@@ -10,7 +10,6 @@ import Alamofire
 import SnapKit
 
 final class MainViewModel: WebSocketRequestDataSource {
-    var allCoinLists: [String]?
     var tickers: [String]? {
         didSet {
             tickers?.forEach({ ticker in
@@ -25,8 +24,7 @@ final class MainViewModel: WebSocketRequestDataSource {
     var error: NetworkError?
     var needsUpdate: Observable<Bool>?
     
-    init(allCoinLists: [String]? = nil, tickers: [String]?, error: NetworkError? = nil) {
-        self.allCoinLists = allCoinLists
+    init(tickers: [String]?, error: NetworkError? = nil) {
         self.tickers = tickers
         self.error = error
     }
@@ -78,7 +76,7 @@ final class MainViewController: UIViewController {
     private var socket: WebSocket?
     internal var viewModel: WebSocketRequestDataSource?
     
-    private var tableView: UITableView = {
+    private lazy var tableView: UITableView = {
        
         let t = UITableView(frame: .zero)
         
@@ -89,6 +87,8 @@ final class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = .appColor(.mainBackground)
         
         initializeData()
     }
@@ -116,8 +116,6 @@ final class MainViewController: UIViewController {
         }
         
         setUpBinding()
-        
-        viewModel.getAllCoinsList()
     }
 }
 

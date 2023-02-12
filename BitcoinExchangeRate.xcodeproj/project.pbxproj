@@ -21,6 +21,8 @@
 		D3AAD0F62994DAC200B3B304 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0F52994DAC200B3B304 /* Constant.swift */; };
 		D3AAD0FA29977D9C00B3B304 /* AddNewCoinTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0F929977D9C00B3B304 /* AddNewCoinTableViewCell.swift */; };
 		D3AAD0FC29977F1000B3B304 /* AssetColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0FB29977F1000B3B304 /* AssetColor.swift */; };
+		D3AAD0FE29978A3000B3B304 /* SearchCoinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0FD29978A3000B3B304 /* SearchCoinViewController.swift */; };
+		D3AAD1022997D6A700B3B304 /* TickerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD1012997D6A700B3B304 /* TickerTableViewCell.swift */; };
 		D3D5F84F298A233500F5D9B5 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D5F84E298A233500F5D9B5 /* Observable.swift */; };
 		D3E85443298C08BB0087848B /* WebSocketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E85442298C08BB0087848B /* WebSocketTests.swift */; };
 /* End PBXBuildFile section */
@@ -50,6 +52,8 @@
 		D3AAD0F52994DAC200B3B304 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		D3AAD0F929977D9C00B3B304 /* AddNewCoinTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewCoinTableViewCell.swift; sourceTree = "<group>"; };
 		D3AAD0FB29977F1000B3B304 /* AssetColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetColor.swift; sourceTree = "<group>"; };
+		D3AAD0FD29978A3000B3B304 /* SearchCoinViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoinViewController.swift; sourceTree = "<group>"; };
+		D3AAD1012997D6A700B3B304 /* TickerTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerTableViewCell.swift; sourceTree = "<group>"; };
 		D3D5F84E298A233500F5D9B5 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		D3E85440298C08BA0087848B /* BitcoinExchangeRateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitcoinExchangeRateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3E85442298C08BB0087848B /* WebSocketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketTests.swift; sourceTree = "<group>"; };
@@ -100,6 +104,8 @@
 				D310CB302986B0B800571F68 /* SceneDelegate.swift */,
 				D310CB322986B0B800571F68 /* MainViewController.swift */,
 				D3AAD0F929977D9C00B3B304 /* AddNewCoinTableViewCell.swift */,
+				D3AAD0FD29978A3000B3B304 /* SearchCoinViewController.swift */,
+				D3AAD1012997D6A700B3B304 /* TickerTableViewCell.swift */,
 				D3D5F84E298A233500F5D9B5 /* Observable.swift */,
 				D35C0F03298B9B2200DB3482 /* Model.swift */,
 				D3AAD0FB29977F1000B3B304 /* AssetColor.swift */,
@@ -236,7 +242,9 @@
 				D3D5F84F298A233500F5D9B5 /* Observable.swift in Sources */,
 				D310CB332986B0B800571F68 /* MainViewController.swift in Sources */,
 				D35C0F06298B9DA800DB3482 /* Extension.swift in Sources */,
+				D3AAD0FE29978A3000B3B304 /* SearchCoinViewController.swift in Sources */,
 				D3AAD0F62994DAC200B3B304 /* Constant.swift in Sources */,
+				D3AAD1022997D6A700B3B304 /* TickerTableViewCell.swift in Sources */,
 				D310CB2F2986B0B800571F68 /* AppDelegate.swift in Sources */,
 				D35C0F04298B9B2200DB3482 /* Model.swift in Sources */,
 				D310CB312986B0B800571F68 /* SceneDelegate.swift in Sources */,

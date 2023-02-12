@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import Alamofire
 
 final class AddNewCoinTableViewCell: UITableViewCell {
 
     static let identifier = "AddNewCoinTableViewCell"
     
-    let button = UIButton(type: .system)
+    private let button = UIButton(type: .system)
+    
+    internal var buttonTapped = {}
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -29,6 +32,8 @@ final class AddNewCoinTableViewCell: UITableViewCell {
         button.setImage(addCoinImage, for: .normal)
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
         
+        button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        
         contentView.addSubview(button)
         button.snp.makeConstraints { make in
             make.centerY.centerX.equalTo(contentView)
@@ -39,7 +44,7 @@ final class AddNewCoinTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func buttonTapped() {
-        
+    @objc private func addButtonTapped() {
+        buttonTapped()
     }
 }
