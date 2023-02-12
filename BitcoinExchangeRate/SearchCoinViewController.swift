@@ -14,7 +14,11 @@ typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Ticker>
 final class SearchCoinViewController: UIViewController {
     internal var allCoinsList = [Ticker]() {
         didSet {
-            setUpTableView()
+            guard var snapShot = dataSource?.snapshot() else { return }
+            
+            snapShot.appendSections([.main])
+            snapShot.appendItems(allCoinsList)
+            dataSource?.apply(snapShot, animatingDifferences: true)
         }
     }
     internal var error: NetworkError?
@@ -37,14 +41,14 @@ final class SearchCoinViewController: UIViewController {
         let t = UITableView(frame: .zero)
         
         t.register(TickerTableViewCell.self, forCellReuseIdentifier: TickerTableViewCell.identifier)
+        t.dataSource = dataSource
+        t.delegate = self
         
         return t
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .appColor(.mainBackground)
         
         getAllCoinsList { result in
             switch result {
@@ -54,6 +58,10 @@ final class SearchCoinViewController: UIViewController {
                 self.error = error
             }
         }
+        
+        view.backgroundColor = .appColor(.mainBackground)
+        
+        setUpTableView()
     }
     
     private func getAllCoinsList(completion: @escaping (Result<[Ticker], NetworkError>) -> Void) {
@@ -84,12 +92,16 @@ final class SearchCoinViewController: UIViewController {
     }
     
     func query(with filter: String?) {
-        let filtered = self.allCoinsList.filter { $0.name.hasPrefix(filter ?? "") }
+        let filteredTickers = self.allCoinsList.filter { $0.name.hasPrefix(filter ?? "") }
 
-        var snapshot = Snapshot()
-        snapshot.appendSections([.main])
-        snapshot.appendItems(filtered)
-        self.dataSource?.apply(snapshot, animatingDifferences: true)
+        guard var snapShot = dataSource?.snapshot() else { return }
+        
+        if snapShot.numberOfSections == 0 {
+            snapShot.appendSections([.main])
+        }
+        
+        snapShot.appendItems(filteredTickers)
+        dataSource?.apply(snapShot, animatingDifferences: true)
     }
     
     private func setUpTableView() {
@@ -108,4 +120,8 @@ extension SearchCoinViewController: UISearchResultsUpdating {
         let text = searchController.searchBar.text
         query(with: text)
     }
+}
+
+extension SearchCoinViewController: UITableViewDelegate {
+    
 }

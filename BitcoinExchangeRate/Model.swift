@@ -65,3 +65,7 @@ struct Ticker: Hashable {
     let id = UUID()
     var name: String
 }
+
+enum Section: Int, CaseIterable {
+    case main
+}
