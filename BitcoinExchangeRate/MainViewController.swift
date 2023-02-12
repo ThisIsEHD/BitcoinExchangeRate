@@ -80,7 +80,10 @@ final class MainViewController: UIViewController {
        
         let t = UITableView(frame: .zero)
         
-        
+        t.register(CoinDataTableViewCell.self, forCellReuseIdentifier: CoinDataTableViewCell.identifier)
+        t.dataSource = self
+        t.delegate = self
+        t.backgroundColor = .appColor(.mainBackground)
         
         return t
     }()
@@ -91,17 +94,21 @@ final class MainViewController: UIViewController {
         view.backgroundColor = .appColor(.mainBackground)
         
         initializeData()
+        
+        title = "BitScale"
+        
+        configureViews()
     }
     
     private func setUpBinding() {
         guard let viewModel = viewModel as? MainViewModel else { return }
-        viewModel.needsUpdate?.bind({ needsUpdate in
-            self.socket?.connect(with: viewModel.getWebSocketReqeust())
-        })
+//        viewModel.needsUpdate?.bind({ needsUpdate in
+//            self.socket?.connect(with: viewModel.getWebSocketReqeust(), tickersCount: <#Int#>)
+//        })
     }
     
     private func initializeData() {
-        UserDefaults.standard.set(["BTC", "ETH"], forKey: Constant.myFavoriteCoinsTickers)
+        UserDefaults.standard.set(["BTC", "ETH", "BCH"], forKey: Constant.myFavoriteCoinsTickers)
         let myFavoriteCoinsTickers = UserDefaults.standard.object(forKey: Constant.myFavoriteCoinsTickers) as? [String] ?? []
         
         viewModel = MainViewModel(tickers: myFavoriteCoinsTickers)
@@ -112,11 +119,43 @@ final class MainViewController: UIViewController {
         socket?.delegate = self
         
         if !myFavoriteCoinsTickers.isEmpty {
-            socket?.connect(with: viewModel.getWebSocketReqeust())
+            socket?.connect(with: viewModel.getWebSocketReqeust(), tickersCount: viewModel.tickers!.count)
         }
         
         setUpBinding()
     }
+    
+    private func configureViews() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .appColor(.mainBackground)
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
+        
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.bottom.leading.trailing.equalTo(view)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+        }
+    }
+}
+
+extension MainViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        5
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CoinDataTableViewCell.identifier, for: indexPath) as? CoinDataTableViewCell else {
+            return CoinDataTableViewCell()
+        }
+        
+        return cell
+    }
+}
+
+extension MainViewController: UITableViewDelegate {
+    
 }
 
 extension MainViewController: WebSocketEventsDelegate {
@@ -130,6 +169,9 @@ final class Socket: NSObject, WebSocket {
     var task: WebSocketTask?
     var delegate: WebSocketEventsDelegate?
 
+    var receiveCount = 0
+    var tickersCount = 0
+    
     required init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type) {
         super.init()
         
@@ -140,9 +182,9 @@ final class Socket: NSObject, WebSocket {
     func sendPing() {
         task?.sendPing(pongReceiveHandler: { error in
             guard let _ = error else { return }
-            self.delegate?.handleError(.webSocketError)
+            self.handleErrorInMainQueue()
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 29) {
                self.sendPing()
            }
         })
@@ -151,7 +193,7 @@ final class Socket: NSObject, WebSocket {
     func send(request: String) {
         task?.send(.string(request), completionHandler: { error in
             guard let _ = error else { return }
-            self.delegate?.handleError(.webSocketError)
+            self.handleErrorInMainQueue()
         })
     }
     
@@ -162,32 +204,44 @@ final class Socket: NSObject, WebSocket {
             case .success(let message):
                 switch message {
                 case .data:
-                    self.delegate?.handleError(.webSocketError)
+                    self.handleErrorInMainQueue()
 
                 case .string(let message):
-                    print(message)
                     let messageData = message.data(using: .utf8)
+                    
                     if let webSocketResponse = messageData?.jsonDecode(type: WebSocketResponse.self) {
                         
                         guard let coinData = webSocketResponse.marketData.first else { return }
                         
-                        print("last price:", webSocketResponse.marketData.first!.lastPrice)
-                        
                         let ticker = String(coinData.tickerUSDT.dropLast(4))
                         
                         self.delegate?.viewModel?.handleCoinsPriceData(ticker: ticker, price: coinData.lastPrice)
+                        self.receiveCount += 1
                     }
+                    
                 @unknown default:
-                    self.delegate?.handleError(.webSocketError)
+                    self.handleErrorInMainQueue()
                 }
             case .failure:
-                self.delegate?.handleError(.webSocketError)
+                self.handleErrorInMainQueue()
             }
-            self.receive()
+            
+            if self.receiveCount >= self.tickersCount {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 5.1) {
+                    self.receiveCount = 0
+                    self.receive()
+               }
+                
+            } else {
+                DispatchQueue.global().async {
+                    self.receive()
+                }
+            }
         })
     }
     
-    func connect(with request: String) {
+    func connect(with request: String, tickersCount: Int) {
+        self.tickersCount = tickersCount
         task?.resume()
         sendPing()
         send(request: request)
@@ -196,5 +250,11 @@ final class Socket: NSObject, WebSocket {
 
     func disconnect() {
         task?.cancel()
+    }
+    
+    func handleErrorInMainQueue() {
+        DispatchQueue.main.async {
+            self.delegate?.handleError(.webSocketError)
+        }
     }
 }
