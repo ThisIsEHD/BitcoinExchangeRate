@@ -8,7 +8,7 @@
 import UIKit
 
 enum AssetColor: String {
-    case mainBackground
+    case mainBackground, plus, minus
 }
 
 extension UIColor {
@@ -17,6 +17,10 @@ extension UIColor {
         switch name {
         case .mainBackground:
             return UIColor(named: AssetColor.mainBackground.rawValue)!
+        case .plus:
+            return UIColor(named: AssetColor.plus.rawValue)!
+        case .minus:
+            return UIColor(named: AssetColor.minus.rawValue)!
         }
     }
 }

@@ -23,6 +23,8 @@
 		D3AAD0FC29977F1000B3B304 /* AssetColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0FB29977F1000B3B304 /* AssetColor.swift */; };
 		D3AAD0FE29978A3000B3B304 /* SearchCoinViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD0FD29978A3000B3B304 /* SearchCoinViewController.swift */; };
 		D3AAD1022997D6A700B3B304 /* TickerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD1012997D6A700B3B304 /* TickerTableViewCell.swift */; };
+		D3AAD1042999114700B3B304 /* CoinDataTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AAD1032999114700B3B304 /* CoinDataTableViewCell.swift */; };
+		D3AAD1072999158D00B3B304 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = D3AAD1062999158D00B3B304 /* Kingfisher */; };
 		D3D5F84F298A233500F5D9B5 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D5F84E298A233500F5D9B5 /* Observable.swift */; };
 		D3E85443298C08BB0087848B /* WebSocketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E85442298C08BB0087848B /* WebSocketTests.swift */; };
 /* End PBXBuildFile section */
@@ -54,6 +56,7 @@
 		D3AAD0FB29977F1000B3B304 /* AssetColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetColor.swift; sourceTree = "<group>"; };
 		D3AAD0FD29978A3000B3B304 /* SearchCoinViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchCoinViewController.swift; sourceTree = "<group>"; };
 		D3AAD1012997D6A700B3B304 /* TickerTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerTableViewCell.swift; sourceTree = "<group>"; };
+		D3AAD1032999114700B3B304 /* CoinDataTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinDataTableViewCell.swift; sourceTree = "<group>"; };
 		D3D5F84E298A233500F5D9B5 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		D3E85440298C08BA0087848B /* BitcoinExchangeRateTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitcoinExchangeRateTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3E85442298C08BB0087848B /* WebSocketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketTests.swift; sourceTree = "<group>"; };
@@ -64,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3AAD1072999158D00B3B304 /* Kingfisher in Frameworks */,
 				D310CB442986BA9700571F68 /* Alamofire in Frameworks */,
 				D310CB472986CF6700571F68 /* SnapKit in Frameworks */,
 			);
@@ -106,6 +110,7 @@
 				D3AAD0F929977D9C00B3B304 /* AddNewCoinTableViewCell.swift */,
 				D3AAD0FD29978A3000B3B304 /* SearchCoinViewController.swift */,
 				D3AAD1012997D6A700B3B304 /* TickerTableViewCell.swift */,
+				D3AAD1032999114700B3B304 /* CoinDataTableViewCell.swift */,
 				D3D5F84E298A233500F5D9B5 /* Observable.swift */,
 				D35C0F03298B9B2200DB3482 /* Model.swift */,
 				D3AAD0FB29977F1000B3B304 /* AssetColor.swift */,
@@ -147,6 +152,7 @@
 			packageProductDependencies = (
 				D310CB432986BA9700571F68 /* Alamofire */,
 				D310CB462986CF6700571F68 /* SnapKit */,
+				D3AAD1062999158D00B3B304 /* Kingfisher */,
 			);
 			productName = BitcoinExchangeRate;
 			productReference = D310CB2B2986B0B800571F68 /* BitcoinExchangeRate.app */;
@@ -201,6 +207,7 @@
 			packageReferences = (
 				D310CB422986BA9700571F68 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				D310CB452986CF6700571F68 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				D3AAD1052999158D00B3B304 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = D310CB2C2986B0B800571F68 /* Products */;
 			projectDirPath = "";
@@ -246,6 +253,7 @@
 				D3AAD0F62994DAC200B3B304 /* Constant.swift in Sources */,
 				D3AAD1022997D6A700B3B304 /* TickerTableViewCell.swift in Sources */,
 				D310CB2F2986B0B800571F68 /* AppDelegate.swift in Sources */,
+				D3AAD1042999114700B3B304 /* CoinDataTableViewCell.swift in Sources */,
 				D35C0F04298B9B2200DB3482 /* Model.swift in Sources */,
 				D310CB312986B0B800571F68 /* SceneDelegate.swift in Sources */,
 				D35C0F02298ADD4600DB3482 /* WebSocket.swift in Sources */,
@@ -551,6 +559,14 @@
 				kind = branch;
 			};
 		};
+		D3AAD1052999158D00B3B304 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -563,6 +579,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D310CB452986CF6700571F68 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		D3AAD1062999158D00B3B304 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D3AAD1052999158D00B3B304 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

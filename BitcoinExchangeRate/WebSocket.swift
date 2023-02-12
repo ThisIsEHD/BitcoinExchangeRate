@@ -39,7 +39,7 @@ protocol WebSocket: URLSessionWebSocketDelegate {
 
     init<T: WebSocketTaskProviderInUrlSession>(url: URL, webSocketTaskProviderType _: T.Type)
 
-    func connect(with request: String)
+    func connect(with request: String, tickersCount: Int)
     func disconnect()
 }
 

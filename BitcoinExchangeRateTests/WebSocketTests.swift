@@ -38,7 +38,7 @@ final class WebSocketTests: XCTestCase {
         
         socket = MockSocket(url: bitgetURL, webSocketTaskProviderType: URLSession.self)
         (socket as? MockSocket)?.testFulfilled = { promise.fulfill() }
-        socket.connect(with: getBTCRequest())
+        socket.connect(with: getBTCRequest(), tickersCount: 1)
         
         wait(for: [promise], timeout: 5)
         let delegate = socket.delegate as? MockSocketEventsDelegate
@@ -77,7 +77,7 @@ class MockSocket: NSObject, WebSocket {
     
     var testFulfilled: (() -> ()) = {}
     
-    func connect(with request: String) {
+    func connect(with request: String, tickersCount: Int) {
         task?.resume()
         
         let MockDelegate = delegate as? MockSocketEventsDelegate

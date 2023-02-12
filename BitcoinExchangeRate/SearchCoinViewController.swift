@@ -43,6 +43,7 @@ final class SearchCoinViewController: UIViewController {
         t.register(TickerTableViewCell.self, forCellReuseIdentifier: TickerTableViewCell.identifier)
         t.dataSource = dataSource
         t.delegate = self
+        t.backgroundColor = .appColor(.mainBackground)
         
         return t
     }()

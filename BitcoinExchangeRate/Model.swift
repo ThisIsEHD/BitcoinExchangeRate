@@ -49,7 +49,7 @@ struct MarketData: Codable {
 
     enum CodingKeys: String, CodingKey {
         case tickerUSDT = "instId"
-        case lastPrice = "las"
+        case lastPrice = "last"
         case open24H = "open24h"
         case high24H = "high24h"
         case low24H = "low24h"
