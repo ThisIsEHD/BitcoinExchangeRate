@@ -12,6 +12,7 @@ struct Constant {
     static let bitgetWebSocketURL = "wss://ws.bitget.com/mix/v1/stream"
     static let tempLogoURL = "https://cryptoicons.org"
     static let gettingAllCoinsURL = "https://api.bitget.com/api/spot/v1/public/currencies"
+    static let gettingcoinsImageURL = "https://min-api.cryptocompare.com/data/all/coinlist"
     
     static let myFavoriteCoinsTickers = "myFavoriteCoinsTickers"
     static let OK = "확인"

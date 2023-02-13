@@ -76,24 +76,15 @@ final class SearchCoinViewController: UIViewController {
             let jsonDataDictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
             
             guard let coinsDataDictionary = jsonDataDictionary?["data"] as? [[String: Any]] else { completion(.failure(.httpError)); return }
+                        
+            let tickers = coinsDataDictionary.map { $0["coinName"] as? String }.compactMap {$0}.map{ Ticker(value: $0)}
             
-            var tickers = [String]()
-            for singleCoinDataDictionary in coinsDataDictionary {
-                if let coinName = singleCoinDataDictionary["coinName"] as? String {
-                    tickers.append(coinName)
-                }
-            }
-            
-            tickers = coinsDataDictionary.map { $0["coinName"] as? String }.compactMap {$0}
-            
-            let uniqueTickers = tickers.map { ticker in Ticker(name: ticker) }
-            
-            completion(.success(uniqueTickers))
+            completion(.success(tickers))
         }
     }
     
     func query(with filter: String?) {
-        let filteredTickers = self.allCoinsList.filter { $0.name.hasPrefix(filter ?? "") }
+        let filteredTickers = self.allCoinsList.filter { $0.value.hasPrefix(filter ?? "") }
 
         guard var snapShot = dataSource?.snapshot() else { return }
         
@@ -109,7 +100,7 @@ final class SearchCoinViewController: UIViewController {
         dataSource = DataSource(tableView: tableView) { (tableView, indexPath, ticker) -> TickerTableViewCell? in
             guard let cell = tableView.dequeueReusableCell(withIdentifier: TickerTableViewCell.identifier, for: indexPath) as? TickerTableViewCell else { return TickerTableViewCell() }
             
-            cell.ticker = ticker.name
+            cell.ticker = ticker.value
             
             return cell
         }

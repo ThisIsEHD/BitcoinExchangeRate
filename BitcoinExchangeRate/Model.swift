@@ -61,11 +61,16 @@ struct MarketData: Codable {
 }
 
 struct Ticker: Hashable {
-    
     let id = UUID()
-    var name: String
+    var value: String
 }
 
 enum Section: Int, CaseIterable {
     case main
+}
+
+struct Coin {
+    let ticker: Ticker
+    var price: Observable<String> = Observable("")
+    var imageURL: Observable<String>?
 }

@@ -50,7 +50,7 @@ protocol WebSocketEventsDelegate {
 }
 
 protocol WebSocketRequestDataSource {
-    var tickers: [String]? { get set }
+    var coins: [Coin] { get set }
     
     func getWebSocketReqeust() -> String
     func handleCoinsPriceData(ticker: String, price: String)

@@ -10,33 +10,23 @@ import Alamofire
 import SnapKit
 
 final class MainViewModel: WebSocketRequestDataSource {
-    var tickers: [String]? {
-        didSet {
-            tickers?.forEach({ ticker in
-                if coinsPrice.value[ticker] == nil {
-                    coinsPrice.value[ticker] = "0"
-                }
-            })
-        }
-    }
-    var coinsPrice: Observable<[String : String]> = Observable([:])
+    var coins: [Coin]
     
     var error: NetworkError?
     var needsUpdate: Observable<Bool>?
-    
-    init(tickers: [String]?, error: NetworkError? = nil) {
-        self.tickers = tickers
-        self.error = error
+        
+    init(coins: [Coin]) {
+        self.coins = coins
     }
     
     func handleCoinsPriceData(ticker: String, price: String) {
-        coinsPrice.value[ticker] = price
+        var coin = coins.first { $0.ticker.value == ticker }
+        coin?.price.value = price
     }
     
     func getWebSocketReqeust() -> String {
-        guard let tickers = tickers, !tickers.isEmpty else { return "" }
-        
-        let arguments = tickers.map { ticker in Argument(instType: "SP", channel: "ticker", instID: ticker + "USDT") }
+        guard !coins.isEmpty else { return "" }
+        let arguments = coins.map { coin in Argument(instType: "SP", channel: "ticker", instID: coin.ticker.value + "USDT") }
         let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
         
         guard let jsonData = webSocketRequest.toJSONData(),
@@ -47,26 +37,29 @@ final class MainViewModel: WebSocketRequestDataSource {
         return strWebSocketRequest
     }
     
-    func getAllCoinsList() {
-        let getAllCoinsListAPI = Constant.gettingAllCoinsURL
+    func getCoinsImageURL(tickers: [Ticker]) {
+        let coinsImageURL = Constant.gettingcoinsImageURL
         
-        AF.request(getAllCoinsListAPI).validate().response { response in
+        AF.request(coinsImageURL).validate().response { response in
             guard let httpResponse = response.response,
                   let data = response.data,
                   httpResponse.statusCode == 200 else { self.error = .httpError; return }
             
             let jsonDataDictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
             
-            guard let coinsDataDictionary = jsonDataDictionary?["data"] as? [[String: Any]] else { return }
+            guard let coinsDataDictionary = jsonDataDictionary?["Data"] as? [String: Any] else { return }
             
-            var tickers = [String]()
-            for singleCoinDataDictionary in coinsDataDictionary {
-                if let coinName = singleCoinDataDictionary["coinName"] as? String {
-                    tickers.append(coinName)
+            self.coins = tickers.map({ ticker in
+                if let singleCoinData = coinsDataDictionary[ticker.value] as? [String: Any] {
+                    if let imageURL = singleCoinData["ImageUrl"] as? String {
+                        return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(imageURL))
+                    } else {
+                        return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(""))
+                    }
+                } else {
+                    return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(""))
                 }
-            }
-            
-            tickers = coinsDataDictionary.map { $0["coinName"] as? String }.compactMap {$0}
+            })
         }
     }
 }
@@ -108,18 +101,17 @@ final class MainViewController: UIViewController {
     }
     
     private func initializeData() {
-        UserDefaults.standard.set(["BTC", "ETH", "BCH"], forKey: Constant.myFavoriteCoinsTickers)
-        let myFavoriteCoinsTickers = UserDefaults.standard.object(forKey: Constant.myFavoriteCoinsTickers) as? [String] ?? []
+        UserDefaults.standard.set(["BTC", "ETH", "BCH", "LTC", "XRP", "TRX"], forKey: Constant.myFavoriteCoinsTickers)  //나중에 없애야
+        let tickersList = UserDefaults.standard.object(forKey: Constant.myFavoriteCoinsTickers) as? [String] ?? []
+        let myFavoriteCoins = tickersList.map { ticker in Coin(ticker: Ticker(value: ticker)) }
         
-        viewModel = MainViewModel(tickers: myFavoriteCoinsTickers)
-        
-        guard let viewModel = viewModel as? MainViewModel else { return }
+        viewModel = MainViewModel(coins: myFavoriteCoins)
         
         socket = Socket(url: URL(string: Constant.bitgetWebSocketURL)!, webSocketTaskProviderType: URLSession.self)
         socket?.delegate = self
         
-        if !myFavoriteCoinsTickers.isEmpty {
-            socket?.connect(with: viewModel.getWebSocketReqeust(), tickersCount: viewModel.tickers!.count)
+        if !myFavoriteCoins.isEmpty {
+            socket?.connect(with: viewModel!.getWebSocketReqeust(), tickersCount: viewModel!.coins.count)
         }
         
         setUpBinding()
@@ -196,10 +188,11 @@ final class Socket: NSObject, WebSocket {
             self.handleErrorInMainQueue()
         })
     }
-    
+    var receivingCount = 0
     func receive() {
         task?.receive(completionHandler: { result in
-
+            self.receivingCount += 1
+            print(self.receivingCount)
             switch result {
             case .success(let message):
                 switch message {
@@ -227,7 +220,7 @@ final class Socket: NSObject, WebSocket {
             }
             
             if self.receiveCount >= self.tickersCount {
-                DispatchQueue.global().asyncAfter(deadline: .now() + 5.1) {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 15.1) {
                     self.receiveCount = 0
                     self.receive()
                }
