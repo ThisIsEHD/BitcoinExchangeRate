@@ -10,25 +10,44 @@ import Alamofire
 import SnapKit
 
 final class MainViewModel: WebSocketRequestDataSource {
-    var coins: [Coin]
+    
+//    var coins: [String]   //이거 tickers: [String] 으로 바꿔도 무관할 수도 있어서 나중에 고려해보자.
+    var altCoins = [String: Coin]() 
+//        didSet {
+//            needsUpdate?.value = true
+//        }
+    
+    var btc = Coin(ticker: Ticker(value: Constant.BTC))
+    var altCoinTickerList: [String] = []
     
     var error: NetworkError?
     var needsUpdate: Observable<Bool>?
-        
-    init(coins: [Coin]) {
-        self.coins = coins
-    }
     
-    func handleCoinsPriceData(ticker: String, price: String) {
-        var coin = coins.first { $0.ticker.value == ticker }
-        coin?.price.value = price
+    var receiveCount = 0
+    
+    init() {
+        UserDefaults.standard.set(["BCH", "ETC", "ETH"], forKey: Constant.myFavoriteCoinsTickers)
+        altCoinTickerList = UserDefaults.standard.object(forKey: Constant.myFavoriteCoinsTickers) as? [String] ?? [String]()
+        print(altCoinTickerList, "⭐️")
+        altCoins = altCoinTickerList.reduce(into: [String: Coin]()) { dict, ticker in
+            dict[ticker] = Coin(ticker: Ticker(value: ticker))
+        }
+        
+        altCoins[Constant.BTC] = Coin(ticker: Ticker(value: Constant.BTC))
+        
+//        coins = altCoinTickerList
+//        coins.append("BTC")
     }
     
     func getWebSocketReqeust() -> String {
-        guard !coins.isEmpty else { return "" }
-        let arguments = coins.map { coin in Argument(instType: "SP", channel: "ticker", instID: coin.ticker.value + "USDT") }
-        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
+        guard !altCoins.isEmpty else { return "" }
         
+        var willSearchCoins = altCoinTickerList
+        willSearchCoins.append("BTC")
+        
+        let arguments: [Argument] = willSearchCoins.map{ Argument(instType: "SP", channel: "ticker", instID: $0 + "USDT") }
+        let webSocketRequest = WebSocketRequest(op: "subscribe", args: arguments)
+
         guard let jsonData = webSocketRequest.toJSONData(),
               let strWebSocketRequest = String(data: jsonData, encoding: .utf8) else {
             return ""
@@ -37,30 +56,107 @@ final class MainViewModel: WebSocketRequestDataSource {
         return strWebSocketRequest
     }
     
-    func getCoinsImageURL(tickers: [Ticker]) {
-        let coinsImageURL = Constant.gettingcoinsImageURL
-        
-        AF.request(coinsImageURL).validate().response { response in
-            guard let httpResponse = response.response,
-                  let data = response.data,
-                  httpResponse.statusCode == 200 else { self.error = .httpError; return }
-            
-            let jsonDataDictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            
-            guard let coinsDataDictionary = jsonDataDictionary?["Data"] as? [String: Any] else { return }
-            
-            self.coins = tickers.map({ ticker in
-                if let singleCoinData = coinsDataDictionary[ticker.value] as? [String: Any] {
-                    if let imageURL = singleCoinData["ImageUrl"] as? String {
-                        return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(imageURL))
-                    } else {
-                        return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(""))
-                    }
-                } else {
-                    return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(""))
-                }
-            })
+//    func getCoinsImageURL(tickers: [Ticker]) {
+//        let coinsImageURL = Constant.gettingcoinsImageURL
+//
+//        AF.request(coinsImageURL).validate().response { response in
+//            guard let httpResponse = response.response,
+//                  let data = response.data,
+//                  httpResponse.statusCode == 200 else { self.error = .httpError; return }
+//
+//            let jsonDataDictionary = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+//
+//            guard let coinsDataDictionary = jsonDataDictionary?["Data"] as? [String: Any] else { return }
+//
+//            self.coins = tickers.map({ ticker in
+//                if let singleCoinData = coinsDataDictionary[ticker.value] as? [String: Any] {
+//                    if let imageURL = singleCoinData["ImageUrl"] as? String {
+//                        return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(imageURL))
+//                    } else {
+//                        return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(""))
+//                    }
+//                } else {
+//                    return Coin(ticker: ticker, price: Observable(""), imageURL: Observable(""))
+//                }
+//            })
+//        }
+//    }
+    var isInitial = true {
+        didSet {
+            needsUpdate?.value = true
         }
+    }
+    func receiveCoinData(_ data: ACoinMarketData) {
+        receiveCount += 1
+    
+        let ticker = String(data.tickerUSDT.dropLast(4))
+        let lastPrice = data.lastPrice
+        let open24hPrice = data.open24H
+        
+        if ticker == Constant.BTC {
+            btc.price = Double(lastPrice)
+            btc.openPrice = Double(open24hPrice)
+        } else {
+            altCoins[ticker]?.price = Double(lastPrice)
+            altCoins[ticker]?.openPrice = Double(open24hPrice)
+        }
+        
+        let bitCount = 1
+        
+        if receiveCount == altCoinTickerList.count + bitCount {
+        
+            var tempAltCoins = [String: Coin]()
+            
+            self.altCoins.forEach { ticker, coin in
+                
+                guard let altPrice = coin.price,
+                      let bitPrice = btc.price,
+                      let altOpenPrice = coin.openPrice,
+                      let bitOpenPrice = btc.openPrice else { return }
+
+                let altCoinPerBit = altPrice / bitPrice
+                let openTimeCoinPerBit = altOpenPrice / bitOpenPrice
+
+                var altCoinIncludingBtcData = coin
+                altCoinIncludingBtcData.bitScale = String(format: "%.6f", altCoinPerBit)
+                altCoinIncludingBtcData.fluctuation = getFluctuationPercentage(open: openTimeCoinPerBit, now: altCoinPerBit)
+                tempAltCoins[ticker] = altCoinIncludingBtcData
+                
+                print("\(ticker)-> 알트 가격:\(altCoinPerBit), 변동성: \(getFluctuationPercentage(open: openTimeCoinPerBit, now: altCoinPerBit))")
+            }
+            
+            altCoins = tempAltCoins
+            receiveCount = 0
+            
+            if isInitial {
+                print("👎")
+                isInitial = false
+            }
+            NotificationCenter.default.post(name: Notification.Name("noti"), object: nil)
+        }
+    }
+    
+    func getFluctuationPercentage(open: Double, now: Double) -> String {
+        let difference = now - open
+        let percentage = difference / open * 100
+
+        if difference >= open * 10 {
+            let totalPercentage = (now / open - 1) * 100
+            return "\(String(format: "+%.0f", totalPercentage))%"
+        } else if difference >= open * 2 {
+            let totalPercentage = (now / open - 1) * 100
+            return "\(String(format: "+%.1f", totalPercentage))%"
+        } else if difference > 0 {
+            return "\(String(format: "+%.2f", percentage))%"
+        } else if difference <= -open * 2 {
+            let totalPercentage = (now / open - 1) * 100
+            return "\(String(format: "+%.1f", totalPercentage))%"
+        } else if difference < 0 {
+            return "\(String(format: "-%.2f", -percentage))%"
+        } else {
+            return "0.00%"
+        }
+
     }
 }
 
@@ -86,7 +182,9 @@ final class MainViewController: UIViewController {
         
         view.backgroundColor = .appColor(.mainBackground)
         
-        initializeData()
+        viewModel = MainViewModel()
+        setUpBinding()
+        initializeWebSocket()
         
         title = "BitScale"
         
@@ -94,25 +192,21 @@ final class MainViewController: UIViewController {
     }
     
     private func setUpBinding() {
-        guard let viewModel = viewModel as? MainViewModel else { return }
-//        viewModel.needsUpdate?.bind({ needsUpdate in
-//            self.socket?.connect(with: viewModel.getWebSocketReqeust(), tickersCount: <#Int#>)
-//        })
+        (viewModel as? MainViewModel)?.needsUpdate?.bind({ needsUpdate in
+            print(#function,"📣")
+            if needsUpdate {
+                self.tableView.reloadData()
+            }
+        })
     }
     
-    private func initializeData() {
-        UserDefaults.standard.set(["BTC", "ETH", "BCH", "LTC", "XRP", "TRX"], forKey: Constant.myFavoriteCoinsTickers)  //나중에 없애야
-        let tickersList = UserDefaults.standard.object(forKey: Constant.myFavoriteCoinsTickers) as? [String] ?? []
-        let myFavoriteCoins = tickersList.map { ticker in Coin(ticker: Ticker(value: ticker)) }
-        
-        viewModel = MainViewModel(coins: myFavoriteCoins)
-        
+    private func initializeWebSocket() {
         socket = Socket(url: URL(string: Constant.bitgetWebSocketURL)!, webSocketTaskProviderType: URLSession.self)
         socket?.delegate = self
         
-        if !myFavoriteCoins.isEmpty {
-            socket?.connect(with: viewModel!.getWebSocketReqeust(), tickersCount: viewModel!.coins.count)
-        }
+        guard let viewModel = viewModel, !viewModel.altCoins.isEmpty else { return }
+        
+        socket?.connect(with: viewModel.getWebSocketReqeust(), tickersCount: viewModel.altCoinTickerList.count + 1)
         
         setUpBinding()
     }
@@ -134,13 +228,24 @@ final class MainViewController: UIViewController {
 
 extension MainViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        5
+        guard let viewModel = viewModel else { return 0 }
+        
+//        let addNewCoinCellNumber = 1
+        
+//        return viewModel.altCoins.count + addNewCoinCellNumber
+        print(viewModel.altCoins)
+        return viewModel.altCoinTickerList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CoinDataTableViewCell.identifier, for: indexPath) as? CoinDataTableViewCell else {
             return CoinDataTableViewCell()
         }
+        
+        guard let viewModel = viewModel else { return UITableViewCell() }
+        cell.ticker = viewModel.altCoinTickerList[indexPath.row]
+        cell.viewModel = viewModel
+//        cell.fetch = viewModel.fetchCoinData
         
         return cell
     }
@@ -150,7 +255,25 @@ extension MainViewController: UITableViewDelegate {
     
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 extension MainViewController: WebSocketEventsDelegate {
+    
+    func handle(_ data: ACoinMarketData) {
+        (viewModel as? MainViewModel)?.receiveCoinData(data)
+    }
+    
     func handleError(_ error: NetworkError) {
         let alert = SimpleAlert(message: "네트워크 에러")
         present(alert, animated: true)
@@ -188,11 +311,11 @@ final class Socket: NSObject, WebSocket {
             self.handleErrorInMainQueue()
         })
     }
-    var receivingCount = 0
+    
     func receive() {
+        
         task?.receive(completionHandler: { result in
-            self.receivingCount += 1
-            print(self.receivingCount)
+            
             switch result {
             case .success(let message):
                 switch message {
@@ -206,9 +329,7 @@ final class Socket: NSObject, WebSocket {
                         
                         guard let coinData = webSocketResponse.marketData.first else { return }
                         
-                        let ticker = String(coinData.tickerUSDT.dropLast(4))
-                        
-                        self.delegate?.viewModel?.handleCoinsPriceData(ticker: ticker, price: coinData.lastPrice)
+                        self.delegate?.handle(coinData)
                         self.receiveCount += 1
                     }
                     
@@ -220,7 +341,7 @@ final class Socket: NSObject, WebSocket {
             }
             
             if self.receiveCount >= self.tickersCount {
-                DispatchQueue.global().asyncAfter(deadline: .now() + 15.1) {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
                     self.receiveCount = 0
                     self.receive()
                }

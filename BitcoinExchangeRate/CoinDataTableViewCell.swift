@@ -11,6 +11,16 @@ final class CoinDataTableViewCell: UITableViewCell {
     
     static let identifier = "CoinDataTableViewCell"
     
+    var coin = Observable(Coin(ticker: Ticker(value: "")))
+    
+    var ticker: String = ""
+    var viewModel: WebSocketRequestDataSource? {
+        didSet {
+            print(ticker, "🇹🇳")
+            setupbinding()
+        }
+    }
+    var setupbinding = {}
     private let logoImageView = UIImageView(frame: .zero)
     private let tickerLabel = UILabel(frame: .zero)
     private let scaleLabel: UILabel = {
@@ -63,12 +73,45 @@ final class CoinDataTableViewCell: UITableViewCell {
         scaleLabel.text = "0.123456"
         percentageLabel.text = "+11.00%" //최대 4자리
         
+        NotificationCenter.default.addObserver(self, selector: #selector(noti), name: Notification.Name("noti"), object: nil)
+        setUpBinding()
         addSubviews()
         setConstraints()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc func noti() {
+        
+        guard let coiny = viewModel?.altCoins[ticker] else { return }
+        print("📣")
+        print(coiny)
+        self.coin.value = coiny
+    }
+    
+    private func setUpBinding() {
+//        coin.bitScale.bind({ bitscale in
+//            self.scaleLabel.text = bitscale
+//        })
+//        coin.fluctuation.bind({ percentage in
+//            self.percentageLabel.text = percentage
+//        })
+//        viewModel?.altCoins[ticker]?.bitScale?.bind({ bitscale in
+//            self.scaleLabel.text = bitscale
+//        })
+//        viewModel?.altCoins[ticker]?.fluctuation?.bind({ percentage in
+//            self.percentageLabel.text = percentage
+//        })
+        self.coin.bind { coin in
+            DispatchQueue.main.async {
+                print("🍓")
+                self.percentageLabel.text = coin.fluctuation
+                self.scaleLabel.text = coin.bitScale
+            }
+            
+        }
     }
     
     private func addSubviews() {

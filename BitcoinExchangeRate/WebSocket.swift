@@ -44,16 +44,17 @@ protocol WebSocket: URLSessionWebSocketDelegate {
 }
 
 protocol WebSocketEventsDelegate {
-    var viewModel: WebSocketRequestDataSource? { get set }
-    
     func handleError(_ error: NetworkError)
+    func handle(_ data: ACoinMarketData)
 }
 
 protocol WebSocketRequestDataSource {
-    var coins: [Coin] { get set }
+//    var coins: [String] { get set }
+    var altCoins: [String: Coin] { get set }
+    var altCoinTickerList: [String] { get set }
     
     func getWebSocketReqeust() -> String
-    func handleCoinsPriceData(ticker: String, price: String)
+    func receiveCoinData(_ data: ACoinMarketData)
 }
 
 //struct WebSocket {

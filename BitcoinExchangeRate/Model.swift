@@ -15,7 +15,7 @@ struct WebSocketRequest: Codable {
 struct WebSocketResponse: Codable {
     let action: String
     let arguments: Argument
-    let marketData: [MarketData]
+    let marketData: [ACoinMarketData]
     
     enum CodingKeys: String, CodingKey {
         case action
@@ -40,7 +40,7 @@ struct Argument: Codable {
 }
 
 // MARK: - Datum
-struct MarketData: Codable {
+struct ACoinMarketData: Codable {
     let tickerUSDT, lastPrice, open24H, high24H: String
     let low24H, bestBid, bestAsk, baseVolume: String
     let quoteVolume: String
@@ -71,6 +71,23 @@ enum Section: Int, CaseIterable {
 
 struct Coin {
     let ticker: Ticker
-    var price: Observable<String> = Observable("")
-    var imageURL: Observable<String>?
+    var imageURL: String?
+    var bitScale: String?
+    var fluctuation: String?
+    
+    var price: Double?
+    var openPrice: Double?
 }
+
+//enum Fluctuation {
+//    case plus(percantage: Double)
+//    case minus(percentage: Double)
+//    case steady
+//    
+//    var percentage: String {
+//        switch self {
+//        case .plus(percantage: per):
+//            return "per%"
+//        }
+//    }
+//}

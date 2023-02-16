@@ -132,10 +132,8 @@ class MockSocket: NSObject, WebSocket {
 }
 
 class MockSocketEventsDelegate: WebSocketEventsDelegate {
-    var viewModel: BitcoinExchangeRate.WebSocketRequestDataSource?
     var error: NetworkError?
     
-    func handleError(_ error: BitcoinExchangeRate.NetworkError) {
-        
-    }
+    func handleError(_ error: BitcoinExchangeRate.NetworkError) {}
+    func handle(_ data: BitcoinExchangeRate.ACoinMarketData) {}
 }

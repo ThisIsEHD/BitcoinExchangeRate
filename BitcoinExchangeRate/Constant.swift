@@ -16,4 +16,5 @@ struct Constant {
     
     static let myFavoriteCoinsTickers = "myFavoriteCoinsTickers"
     static let OK = "확인"
+    static let BTC = "BTC"
 }
